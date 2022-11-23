@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class UserValidatorTest {
 
-    User user = new User("info@info.net", "login", "name", LocalDate.now());
+    User user = new User(0, "info@info.net", "login", "name", LocalDate.now());
 
     @Test
     public void wrongMail() {
@@ -26,8 +26,6 @@ public class UserValidatorTest {
         assertThrows(ValidationException.class, () -> {
             UserValidator.validateUser(user);
         });
-
-
     }
 
     @Test

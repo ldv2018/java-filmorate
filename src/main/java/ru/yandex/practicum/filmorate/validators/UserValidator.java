@@ -16,8 +16,14 @@ public class UserValidator {
             throw new ValidationException("Login wrong format");
         }
 
-        if (user.getName().isBlank()) {
+        if (user.getName() == null) {
             user.setName(user.getLogin());
+        }
+
+        if (user.getName() != null) {
+            if (user.getName().isBlank()) {
+                user.setName(user.getLogin());
+            }
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {

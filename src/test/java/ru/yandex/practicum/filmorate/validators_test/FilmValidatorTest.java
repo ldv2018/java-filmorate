@@ -9,13 +9,12 @@ import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 @SpringBootTest
 public class FilmValidatorTest {
 
-    Film film = new Film("filmName", "filmDescription", LocalDate.now(), Duration.ofMinutes(90));
+    Film film = new Film(0,"filmName", "filmDescription", LocalDate.now(), 90);
 
     @Test
     public void blankName() {
@@ -44,7 +43,7 @@ public class FilmValidatorTest {
 
     @Test
     public void negativeDuration() {
-        film.setDuration(Duration.ofMinutes(-9));
+        film.setDuration(-9);
         assertThrows(ValidationException.class, () -> {
             FilmValidator.validateFilm(film);
         });

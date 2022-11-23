@@ -27,7 +27,7 @@ public class FilmValidator {
             throw new ValidationException("Film release date is before required");
         }
 
-        if (film.getDuration().isNegative()) {
+        if (film.getDuration() < 0) {
             log.info("validation exception: film duration");
             throw new ValidationException("Film duration is negative");
         }
