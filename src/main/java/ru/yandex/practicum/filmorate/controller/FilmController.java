@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.ConflictException;
@@ -25,7 +26,7 @@ public class FilmController {
     @PostMapping(path = "/films")
     public Film addFilm(@RequestBody Film film) {
         if (film == null) {
-            throw new BadRequestException("Bad request. Film couldn't be null");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Bad request. Film couldn't be null");
         }
         FilmValidator.validateFilm(film);
         film.setId(id);
@@ -38,10 +39,10 @@ public class FilmController {
     @PutMapping(path = "/films")
     public Film updateFilm(@RequestBody Film film) {
         if (film == null) {
-            throw new BadRequestException("Bad request. Film couldn't be null");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Bad request. Film couldn't be null");
         }
         if (!films.containsKey(film.getId())) {
-            throw new ConflictException("Bad id. No film found");
+            throw new ConflictException(HttpStatus.NOT_FOUND, "Bad id. No film found");
         }
         FilmValidator.validateFilm(film);
         films.replace(film.getId(), film);

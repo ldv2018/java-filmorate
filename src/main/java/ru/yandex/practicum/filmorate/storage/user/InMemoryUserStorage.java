@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,9 +11,7 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage{
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private Map<Integer, User> users = new HashMap<>();
-    private int id = 1;
 
     @Override
     public List<User> getUsers() {
@@ -24,22 +20,13 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User addUser(User user) {
-        replaceEmptyLogin(user);
-        user.setId(id);
-        users.put(id, user);
-        id++;
-        log.info("user added");
+        users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        replaceEmptyLogin(user);
-        if (!users.containsKey(user.getId())) {
-            throw new RuntimeException(); //поменяй исключение
-        }
         users.replace(user.getId(), user);
-        log.info("user updated");
         return user;
     }
 
@@ -51,11 +38,5 @@ public class InMemoryUserStorage implements UserStorage{
     @Override
     public User getUser(int id) {
         return users.get(id);
-    }
-
-    private void replaceEmptyLogin(User user) {
-        if (user.getLogin().isBlank()) {
-            user.setLogin(user.getName());
-        }
     }
 }

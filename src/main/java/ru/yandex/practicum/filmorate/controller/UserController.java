@@ -2,53 +2,77 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.ConflictException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/users")
+
 public class UserController {
 
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id = 1;
+    private UserService userService;
 
-    @GetMapping("/users")
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public User addUser(@Valid @RequestBody User user) {
+        return userService.addUser(user);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+        return userService.getUsers();
     }
 
-    @PostMapping(path = "/users")
-    public User addUser(@RequestBody User user) {
-        if (user == null) {
-            throw new BadRequestException("Bad request. User couldn't be null");
-        }
-        UserValidator.validateUser(user);
-        user.setId(id);
-        users.put(id, user);
-        log.info("user added");
-        id++;
-        return user;
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.updateUser(user);
     }
 
-    @PutMapping(path = "/users")
-    public User updateFilm(@RequestBody User user) {
-        if (user == null) {
-            throw new BadRequestException("Bad request. User couldn't be null");
-        }
-        if (!users.containsKey(user.getId())) {
-            throw new ConflictException("Bad id. No user found");
-        }
-        UserValidator.validateUser(user);
-        users.replace(user.getId(), user);
-        log.info("user updated");
-        return user;
+    @GetMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@PathVariable int id) {
+        return userService.getUserById(id);
     }
+
+    @PutMapping("{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public String addFriend(@PathVariable int id, @PathVariable int friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriends(@PathVariable int id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
 }

@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.TreeSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -21,7 +23,7 @@ public class User {
     private String name;
     @Past
     private LocalDate birthday;
-    private Set<Integer> friends;
+    private final Set<Integer> friends = new TreeSet<>();
 
     public void addFriend(int friendId) {
         friends.add(friendId);
