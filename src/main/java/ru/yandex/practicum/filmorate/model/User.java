@@ -6,11 +6,11 @@ import java.util.TreeSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +19,7 @@ public class User {
     @Email
     private String email;
     @NotBlank
+    @Pattern(regexp = "^([a-zA-Z])+$")
     private String login;
     private String name;
     @Past

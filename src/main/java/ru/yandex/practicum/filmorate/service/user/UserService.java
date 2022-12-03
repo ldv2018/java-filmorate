@@ -17,8 +17,8 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    private static Logger log = LoggerFactory.getLogger(UserService.class);
-    public UserStorage userStorage;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final UserStorage userStorage;
     private int id = 1;
 
     @Autowired
@@ -32,27 +32,29 @@ public class UserService {
         }
         user.setId(id);
         id++;
-        replaceEmptyLogin(user);
+        replaceEmptyName(user);
+        log.info("add user --OK");
         return userStorage.addUser(user);
     }
 
     public List<User> getUsers() {
+        log.info("return users list --OK");
         return userStorage.getUsers();
     }
 
     public User updateUser(User user) {
         if (user == null) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Bad request. User couldn't be null");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
         }
-        if (!userStorage.getUsersId().contains(user.getId())) {
-            throw new ConflictException(HttpStatus.NOT_FOUND, "Bad id. No user with id = " + user.getId());
-        }
-        replaceEmptyLogin(user);
+        checkId(user.getId());
+        replaceEmptyName(user);
+        log.info("update user (id " + user.getId() + ") --OK");
         return userStorage.updateUser(user);
     }
 
     public User getUserById(int id) {
         checkId(id);
+        log.info("return user (id " + id + ") --OK");
         return userStorage.getUser(id);
     }
 
@@ -61,8 +63,9 @@ public class UserService {
         checkId(friendId);
         userStorage.getUser(id).addFriend(friendId);
         userStorage.getUser(friendId).addFriend(id);
-        return userStorage.getUser(id).getName() + " and "
-                + userStorage.getUser(friendId).getName() + " are friends now";
+        return userStorage.getUser(id).getId() + " and "
+                + userStorage.getUser(friendId).getId() + " are friends now";
+
     }
 
     public String deleteFriend(int id, int friendId) {
@@ -70,6 +73,7 @@ public class UserService {
         checkId(friendId);
         userStorage.getUser(id).deleteFriend(friendId);
         userStorage.getUser(friendId).deleteFriend(id);
+        log.info("delete friend (id " + id + " & " + friendId +") --OK");
         return userStorage.getUser(id).getName() + " unfriended "
                 + userStorage.getUser(friendId).getName();
     }
@@ -83,10 +87,11 @@ public class UserService {
     public List<User> getCommonFriends(int id, int otherId) {
         checkId(id);
         checkId(otherId);
-        checkFriends(id);
-        checkFriends(otherId);
+        //checkFriends(id);
+        //checkFriends(otherId);
         Set<Integer> commonFriends = userStorage.getUser(id).getFriends();
         commonFriends.retainAll(userStorage.getUser(otherId).getFriends());
+        log.info("return common friends list --OK");
         return getUsersById(commonFriends);
     }
 
@@ -95,10 +100,11 @@ public class UserService {
             throw new ConflictException(HttpStatus.NOT_FOUND, "User with id "
                     + id + " has no friend");
         }
+        log.info("is have friends (id=" + id + ") --OK");
     }
     private List<User> getUsersById(Set<Integer> usersId) {
         List<User> users = new ArrayList<>();
-        for (Integer i : usersId) {
+        for (int i : usersId) {
             users.add(userStorage.getUser(i));
         }
         return users;
@@ -106,14 +112,15 @@ public class UserService {
 
     private void checkId(int id) {
         if (!userStorage.getUsersId().contains(id)) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "User with id = " + id + " not found");
+            log.info("check id fail");
+            throw new ConflictException(HttpStatus.NOT_FOUND, "Bad id!");
         }
     }
 
-    private void replaceEmptyLogin(User user) {
-        if (user.getLogin().isBlank()) {
-            user.setLogin(user.getName());
-            log.info("Login was empty. Replace empty login.");
+    private void replaceEmptyName(User user) {
+        if (user.getName().isBlank()) {
+            user.setName(user.getLogin());
+            log.info("replace empty name --DONE");
         }
     }
 }
