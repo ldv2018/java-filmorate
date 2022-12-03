@@ -1,21 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage{
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
-    private Map<Integer, Film> films = new HashMap<>();
-    private int id = 1;
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
     public List<Film> getFilms() {
@@ -23,21 +16,33 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
+    public Film getFilmById(int id) {
+        return films.get(id);
+    }
+
+    @Override
     public Film addFilm(Film film) {
-        film.setId(id);
-        films.put(id, film);
-        id++;
-        log.info("film added");
+        films.put(film.getId(), film);
         return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        if (!films.containsKey(film.getId())) {
-            throw new RuntimeException(); //поменяй потом исключение
-        }
         films.replace(film.getId(), film);
-        log.info("film updated");
         return film;
+    }
+
+    public Film addLike(int filmId, int userId) {
+        films.get(filmId).addLike(userId);
+        return films.get(filmId);
+    }
+
+    public Film deleteLike(int filmId, int userId) {
+        films.get(filmId).deleteLike(userId);
+        return films.get(filmId);
+    }
+
+    public List<Integer> getFilmsId() {
+        return new ArrayList<>(films.keySet());
     }
 }

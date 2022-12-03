@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 public class UserService {
@@ -63,9 +64,7 @@ public class UserService {
         checkId(friendId);
         userStorage.getUser(id).addFriend(friendId);
         userStorage.getUser(friendId).addFriend(id);
-        return userStorage.getUser(id).getId() + " and "
-                + userStorage.getUser(friendId).getId() + " are friends now";
-
+        return id + " and " + friendId + " are friends now";
     }
 
     public String deleteFriend(int id, int friendId) {
@@ -74,25 +73,32 @@ public class UserService {
         userStorage.getUser(id).deleteFriend(friendId);
         userStorage.getUser(friendId).deleteFriend(id);
         log.info("delete friend (id " + id + " & " + friendId +") --OK");
-        return userStorage.getUser(id).getName() + " unfriended "
-                + userStorage.getUser(friendId).getName();
+        return id + " unfriended " + friendId;
     }
 
     public List<User> getFriends(int id) {
         checkId(id);
-        Set<Integer> userFriends = userStorage.getUser(id).getFriends();
-        return getUsersById(userFriends);
+        Set<Integer> friends = userStorage.getUser(id).getFriends();
+        return getUsersById(friends);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
         checkId(id);
         checkId(otherId);
-        //checkFriends(id);
-        //checkFriends(otherId);
-        Set<Integer> commonFriends = userStorage.getUser(id).getFriends();
-        commonFriends.retainAll(userStorage.getUser(otherId).getFriends());
+        User userId = userStorage.getUser(id);
+        User userOtherId = userStorage.getUser(otherId);
+        Set<Integer> commonFriends = userId.getFriends();
+        Set<Integer> commonFriends2 = userOtherId.getFriends();
+        Set<Integer> result = new TreeSet<>();
+        for (int i : commonFriends) {
+            for (int j : commonFriends2) {
+                if (i == j) {
+                    result.add(i);
+                }
+            }
+        }
         log.info("return common friends list --OK");
-        return getUsersById(commonFriends);
+        return getUsersById(result);
     }
 
     private void checkFriends(int id) {

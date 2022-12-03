@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class BadRequestException extends RuntimeException{
 
-    public BadRequestException(HttpStatus notFound, String msg) {
+    public BadRequestException(HttpStatus status, String msg) {
         super(msg);
     }
 }

@@ -1,18 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
-import ru.yandex.practicum.filmorate.exceptions.ConflictException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.validators.UserValidator;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -74,5 +68,4 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriends(id, otherId);
     }
-
 }

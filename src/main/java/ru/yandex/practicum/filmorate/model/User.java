@@ -26,11 +26,11 @@ public class User {
     private LocalDate birthday;
     private final Set<Integer> friends = new TreeSet<>();
 
-    public void addFriend(int friendId) {
-        friends.add(friendId);
+    public void addFriend(int id) {
+        friends.add(id);
     }
 
-    public void deleteFriend(int friendId) {
-        friends.remove(friendId);
+    public void deleteFriend(int id) {
+        friends.remove(id);
     }
 }
