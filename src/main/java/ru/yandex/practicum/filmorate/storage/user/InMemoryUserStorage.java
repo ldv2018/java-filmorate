@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -39,8 +37,6 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User findUserById(int id) {
-        return Optional.ofNullable(users.get(id))
-                .orElseThrow(() ->
-                        new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
+        return users.get(id);
     }
 }

@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
@@ -21,9 +18,7 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public Film findFilmById(int id) {
-        return Optional.ofNullable(films.get(id))
-                .orElseThrow(() ->
-                        new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No film found"));
+        return films.get(id);
     }
 
     @Override
@@ -38,11 +33,6 @@ public class InMemoryFilmStorage implements FilmStorage{
     public Film updateFilm(Film film) {
         films.replace(film.getId(), film);
         return film;
-    }
-
-    public Film addLike(int filmId, int userId) {
-        films.get(filmId).addLike(userId);
-        return films.get(filmId);
     }
 
     public Film deleteLike(int filmId, int userId) {

@@ -17,5 +17,4 @@ public interface FilmStorage {
     Film deleteLike(int filmId, int userId);
 
     List<Integer> findFilmsId();
-
 }

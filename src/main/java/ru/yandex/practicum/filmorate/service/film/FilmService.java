@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,10 +33,9 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) {
-//        if (!filmStorage.findFilmsId().contains(id)) {
-//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No film found");
-//        }
-        return filmStorage.findFilmById(id);
+        return Optional.ofNullable(filmStorage.findFilmById(id))
+                .orElseThrow(() ->
+                       new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No film found"));
     }
 
     public Film addFilm(Film film) {

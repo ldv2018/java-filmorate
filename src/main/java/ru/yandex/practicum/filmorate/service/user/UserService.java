@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -53,7 +50,9 @@ public class UserService {
 
     public User getUserById(int id) {
         log.info("return user (id " + id + ") --OK");
-        return userStorage.findUserById(id);
+        return Optional.ofNullable(userStorage.findUserById(id))
+                .orElseThrow(() ->
+                        new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
     }
 
     public String addFriend(int id, int friendId) {
@@ -82,6 +81,8 @@ public class UserService {
     public List<User> getCommonFriends(int id, int otherId) {
         checkId(id);
         checkId(otherId);
+        checkFriends(id);
+        checkFriends(otherId);
         User userId = userStorage.findUserById(id);
         User userOtherId = userStorage.findUserById(otherId);
         Set<Integer> commonFriends = userId.getFriends();
