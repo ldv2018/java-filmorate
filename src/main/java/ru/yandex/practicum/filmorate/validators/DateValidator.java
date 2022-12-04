@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.validators;
 
 import org.springframework.http.HttpStatus;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

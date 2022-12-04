@@ -1,25 +1,27 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage{
 
     private final Map<Integer, User> users = new HashMap<>();
+    private int id = 1;
 
     @Override
-    public List<User> getUsers() {
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
     @Override
     public User addUser(User user) {
+        user.setId(id);
+        id++;
         users.put(user.getId(), user);
         return user;
     }
@@ -31,12 +33,14 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public List<Integer> getUsersId() {
+    public List<Integer> findUsersId() {
         return new ArrayList<>(users.keySet());
     }
 
     @Override
-    public User getUser(int id) {
-        return users.get(id);
+    public User findUserById(int id) {
+        return Optional.ofNullable(users.get(id))
+                .orElseThrow(() ->
+                        new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
     }
 }
