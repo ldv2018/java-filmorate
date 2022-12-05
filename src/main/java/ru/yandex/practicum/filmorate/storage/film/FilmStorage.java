@@ -3,18 +3,17 @@ package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FilmStorage {
 
     List<Film> findAll();
 
-    Film findFilmById(int id);
+    Optional<Film> find(int id);
 
-    Film addFilm(Film film);
+    Film add(Film film);
 
-    Film updateFilm(Film film);
+    Film update(Film film);
 
-    Film deleteLike(int filmId, int userId);
-
-    List<Integer> findFilmsId();
+    boolean isAlreadyExist(int id);
 }

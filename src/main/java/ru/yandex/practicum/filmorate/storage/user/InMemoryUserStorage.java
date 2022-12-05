@@ -17,7 +17,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User addUser(User user) {
+    public User add(User user) {
         user.setId(id);
         id++;
         users.put(user.getId(), user);
@@ -25,7 +25,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         users.replace(user.getId(), user);
         return user;
     }
@@ -36,7 +36,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User findUserById(int id) {
-        return users.get(id);
+    public Optional<User> find(int id) {
+        return Optional.ofNullable(users.get(id));
     }
 }

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -23,26 +24,32 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@Valid @RequestBody User user) {
-        return userService.addUser(user);
+    public User add(@Valid @RequestBody User user) {
+        if (user == null) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
+        }
+        return userService.add(user);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<User> get() {
+        return userService.get();
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public User update(@Valid @RequestBody User user) {
+        if (user == null) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
+        }
+        return userService.update(user);
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserById(@PathVariable int id) {
-        return userService.getUserById(id);
+    public User get(@PathVariable int id) {
+        return userService.get(id);
     }
 
     @PutMapping("{id}/friends/{friendId}")

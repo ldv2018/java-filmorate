@@ -17,12 +17,12 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film findFilmById(int id) {
-        return films.get(id);
+    public Optional<Film> find(int id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override
-    public Film addFilm(Film film) {
+    public Film add(Film film) {
         film.setId(id);
         id++;
         films.put(film.getId(), film);
@@ -30,17 +30,12 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         films.replace(film.getId(), film);
         return film;
     }
 
-    public Film deleteLike(int filmId, int userId) {
-        films.get(filmId).deleteLike(userId);
-        return films.get(filmId);
-    }
-
-    public List<Integer> findFilmsId() {
-        return new ArrayList<>(films.keySet());
+    public boolean isAlreadyExist(int id) {
+        return films.containsKey(id);
     }
 }

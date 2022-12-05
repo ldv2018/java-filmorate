@@ -5,18 +5,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ConflictException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 public class UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
 
     @Autowired
@@ -24,97 +26,90 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user) {
-        if (user == null) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Bad request. User couldn't be null");
-        }
+    public User add(User user) {
         replaceEmptyName(user);
         log.info("add user --OK");
-        return userStorage.addUser(user);
+        return userStorage.add(user);
     }
 
-    public List<User> getUsers() {
+    public List<User> get() {
         log.info("return users list --OK");
         return userStorage.findAll();
     }
 
-    public User updateUser(User user) {
-        if (user == null) {
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
-        }
-        checkId(user.getId());
+    public User update(User user) {
+        throwIfUserNotValid(user.getId());
         replaceEmptyName(user);
         log.info("update user (id " + user.getId() + ") --OK");
-        return userStorage.updateUser(user);
+        return userStorage.update(user);
     }
 
-    public User getUserById(int id) {
+    public User get(int id) {
         log.info("return user (id " + id + ") --OK");
-        return Optional.ofNullable(userStorage.findUserById(id))
-                .orElseThrow(() ->
+        return userStorage.find(id).orElseThrow(() ->
                         new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
     }
 
     public String addFriend(int id, int friendId) {
-        checkId(id);
-        checkId(friendId);
-        userStorage.findUserById(id).addFriend(friendId);
-        userStorage.findUserById(friendId).addFriend(id);
+        User userId = userStorage.find(id).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
+        User userFriendId = userStorage.find(friendId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + friendId + ". No user found"));
+        userId.addFriend(friendId);
+        userFriendId.addFriend(id);
         return id + " and " + friendId + " are friends now";
     }
 
     public String deleteFriend(int id, int friendId) {
-        checkId(id);
-        checkId(friendId);
-        userStorage.findUserById(id).deleteFriend(friendId);
-        userStorage.findUserById(friendId).deleteFriend(id);
+        User userId = userStorage.find(id).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
+        User userFriendId = userStorage.find(friendId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + friendId + ". No user found"));
+        userId.deleteFriend(friendId);
+        userFriendId.deleteFriend(id);
         log.info("delete friend (id " + id + " & " + friendId +") --OK");
         return id + " unfriended " + friendId;
     }
 
     public List<User> getFriends(int id) {
-        checkId(id);
-        Set<Integer> friends = userStorage.findUserById(id).getFriends();
+        User userId = userStorage.find(id).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
+        Set<Integer> friends = userId.getFriends();
         return getUsersById(friends);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        checkId(id);
-        checkId(otherId);
-        checkFriends(id);
-        checkFriends(otherId);
-        User userId = userStorage.findUserById(id);
-        User userOtherId = userStorage.findUserById(otherId);
-        Set<Integer> commonFriends = userId.getFriends();
+        User userId = userStorage.find(id).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found"));
+        User userOtherId = userStorage.find(otherId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + otherId + ". No user found"));
+        throwIfUserHaveNoFriends(userId);
+        throwIfUserHaveNoFriends(userOtherId);
+        Set<Integer> commonFriends = new TreeSet<>(userId.getFriends());
         Set<Integer> commonFriends2 = userOtherId.getFriends();
-        Set<Integer> result = new TreeSet<>();
-        for (int i : commonFriends) {
-            for (int j : commonFriends2) {
-                if (i == j) {
-                    result.add(i);
-                }
-            }
-        }
+        commonFriends.retainAll(commonFriends2);
         log.info("return common friends list --OK");
-        return getUsersById(result);
+        return getUsersById(commonFriends);
     }
 
-    private void checkFriends(int id) {
-        if (userStorage.findUserById(id).getFriends() == null) {
+    private void throwIfUserHaveNoFriends(User user) {
+        if (user.getFriends() == null) {
             throw new ConflictException(HttpStatus.NOT_FOUND, "User with id "
-                    + id + " has no friend");
+                    + user.getId() + " has no friend");
         }
-        log.info("is have friends (id=" + id + ") --OK");
+        log.info("is have friends (id=" + user.getId() + ") --OK");
     }
+
     private List<User> getUsersById(Set<Integer> usersId) {
         List<User> users = new ArrayList<>();
         for (int i : usersId) {
-            users.add(userStorage.findUserById(i));
+            users.add(userStorage.find(i).orElseThrow(() ->
+                    new NotFoundException(HttpStatus.NOT_FOUND, "Bad id. No user found")));
         }
         return users;
     }
 
-    private void checkId(int id) {
+    private void throwIfUserNotValid(int id) {
         if (!userStorage.findUsersId().contains(id)) {
             log.info("check id fail");
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found");
