@@ -22,4 +22,4 @@ Service for working with movies and user ratings
 
 ## ER Diagram
 
-![ER Diagram](https://github.com/ldv2018/java-filmorate/main/QuickDBD-Filmorate%20Diagram.png)
+![ER Diagram](https://github.com/ldv2018/java-filmorate/blob/main/QuickDBD-Filmorate%20Diagram.png)
