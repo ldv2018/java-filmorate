@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConflictException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,10 @@ import java.util.TreeSet;
 public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final UserStorage userStorage;
+    private final Storage<User> userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(Storage<User> userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -110,7 +110,7 @@ public class UserService {
     }
 
     private void throwIfUserNotValid(int id) {
-        if (!userStorage.findUsersId().contains(id)) {
+        if (!userStorage.findId().contains(id)) {
             log.info("check id fail");
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No user found");
         }

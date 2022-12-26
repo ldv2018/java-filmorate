@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.*;
 
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements Storage<User> {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 1;
@@ -31,8 +32,13 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public List<Integer> findUsersId() {
+    public List<Integer> findId() {
         return new ArrayList<>(users.keySet());
+    }
+
+    @Override
+    public boolean isAlreadyExist(int id) {
+        return users.containsKey(id);
     }
 
     @Override

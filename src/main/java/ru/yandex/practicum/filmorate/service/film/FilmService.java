@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final Logger log = LoggerFactory.getLogger(FilmService.class);
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final Storage<Film> filmStorage;
+    private final Storage<User> userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(Storage<Film> filmStorage, Storage<User> userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -85,7 +85,7 @@ public class FilmService {
     }
 
     private void throwIfUserIdNotValid(int userId) {
-        if (!userStorage.findUsersId().contains(userId)) {
+        if (!userStorage.findId().contains(userId)) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + userId + ". No user found");
         }
     }
