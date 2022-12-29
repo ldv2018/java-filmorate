@@ -1,18 +1,18 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface Storage<T> {
-    List<T> findAll();
+public interface UserStorage {
+    List<User> findAll();
 
-    T add(T t);
+    User add(User user);
 
-    T update(T t);
+    User update(User user);
 
-    Optional<T> find(int id);
+    Optional<User> find(int id);
 
     List<Integer> findId();
 
@@ -22,7 +22,7 @@ public interface Storage<T> {
 
     void deleteFriend(int id, int friendId);
 
-    List<T> getFriends(int id);
+    List<User> getFriends(int id);
 
     List<User> getCommonFriends(int id, int otherId);
 

@@ -2,12 +2,11 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.*;
 
 @Component
-public class InMemoryFilmStorage implements Storage<Film> {
+public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 1;
@@ -43,5 +42,20 @@ public class InMemoryFilmStorage implements Storage<Film> {
 
     public boolean isAlreadyExist(int id) {
         return films.containsKey(id);
+    }
+
+    @Override
+    public Optional<Film> addLike(int filmId, int userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Film> deleteLike(int filmId, int userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        throw new UnsupportedOperationException();
     }
 }
