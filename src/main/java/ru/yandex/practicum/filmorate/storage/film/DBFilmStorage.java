@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 
 import java.sql.Date;
@@ -31,12 +33,28 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        String sqlQuery = "SELECT * FROM FILM;";
+        String sqlQuery = "SELECT FILM_ID, " +
+                "FILM.NAME, " +
+                "DESCRIPTION, " +
+                "RELEASE_DATE, " +
+                "DURATION, " +
+                "FILM.RATING_ID, " +
+                "RATING.NAME AS RATING_NAME " +
+                "FROM FILM " +
+                "JOIN RATING on FILM.RATING_ID = RATING.RATING_ID";
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet));
     }
 
     @Override
     public Film add(Film film) {
+        List<Genre> genres = film.getGenres();
+        for (Genre g : genres) {
+            jdbcTemplate.update(
+                    "INSERT INTO FILM_TO_GENRE VALUES (?, ?)",
+                    film.getId(), g.getId()
+            );
+        }
+
         String sqlQuery = "INSERT INTO FILM (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) " +
                 "VALUES (?, ?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -46,7 +64,7 @@ public class DBFilmStorage implements FilmStorage {
             statement.setString(2, film.getDescription());
             statement.setDate(3, Date.valueOf(film.getReleaseDate()));
             statement.setInt(4, film.getDuration());
-            statement.setInt(5, film.getMPA());
+            statement.setInt(5, film.getMpa().getId());
             return statement;
         }, keyHolder);
 
@@ -68,7 +86,7 @@ public class DBFilmStorage implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMPA()
+                film.getMpa().getId()
         );
         return film;
     }
@@ -112,10 +130,23 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        String sqlQuery = "SELECT * FROM FILM WHERE FILM_ID IN (" +
-                "SELECT FILM_ID, COUNT(USER_ID) FROM FILM_LIKE GROUP BY FILM_ID " +
-                "ORDER BY COUNT(USER_ID) DESC" +
-                ") LIMIT " + count + ";";
+        String sqlQuery = "SELECT FILM.FILM_ID, " +
+                "FILM.NAME, " +
+                "DESCRIPTION, " +
+                "RELEASE_DATE, " +
+                "DURATION, " +
+                "FILM.RATING_ID, " +
+                "RATING.NAME AS RATING_NAME " +
+                "FROM FILM " +
+                "JOIN RATING on FILM.RATING_ID = RATING.RATING_ID " +
+                "LEFT JOIN (SELECT FILM_ID, " +
+                "COUNT(USER_ID) rate " +
+                "FROM FILM_LIKE " +
+                "GROUP BY FILM_ID " +
+                ") r ON FILM.FILM_ID = r.FILM_ID " +
+                "ORDER BY r.rate DESC " +
+                "LIMIT " + count + ";";
+        
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet));
 
     }
@@ -126,14 +157,15 @@ public class DBFilmStorage implements FilmStorage {
         String description = resultSet.getString("description");
         LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
         int duration = resultSet.getInt("duration");
-        List<Integer> genres = genreService.getByFilm(id);
-        int MPA = resultSet.getInt("rating_id");
+        List<Genre> genres = genreService.getByFilm(id);
+        MPA mpa = new MPA(resultSet.getInt("rating_id"),
+                resultSet.getString("rating_name"));
         return new Film(id,
                 name,
                 description,
                 releaseDate,
                 duration,
                 genres,
-                MPA);
+                mpa);
     }
 }

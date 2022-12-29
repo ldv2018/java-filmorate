@@ -27,21 +27,26 @@ public class FilmService {
     }
 
     public List<Film> get() {
+        log.info("start FilmService.get()");
         log.info("get films --OK");
         return filmStorage.findAll();
     }
 
     public Film get(int id) {
+        log.info("start FilmService.get(id)");
+        log.info("get film --OK");
         return filmStorage.find(id).orElseThrow(() ->
                        new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + id + ". No film found"));
     }
 
     public Film add(Film film) {
+        log.info("start FilmService.add(film)");
         log.info("add film --OK");
         return filmStorage.add(film);
     }
 
     public Film update(Film film) {
+        log.info("start FilmService.update(film)");
         if (!filmStorage.isAlreadyExist(film.getId())) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + film.getId() + ". No film found");
         }
@@ -51,6 +56,7 @@ public class FilmService {
     }
 
     public Film addLike(int filmId, int userId) {
+        log.info("start FilmService.addLike(id, id)");
         if(!userStorage.isAlreadyExist(userId)) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + filmId + ". No user found");
         }
@@ -63,6 +69,7 @@ public class FilmService {
     }
 
     public Film deleteLike(int filmId, int userId) {
+        log.info("start FilmService.deleteLike(id, id)");
         if(!userStorage.isAlreadyExist(userId)) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + filmId + ". No user found");
         }
@@ -75,6 +82,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(Integer count) {
+        log.info("start FilmService.getPopularFilms(count)");
         if (count > filmStorage.findAll().size()) {
             count = filmStorage.findAll().size();
         }

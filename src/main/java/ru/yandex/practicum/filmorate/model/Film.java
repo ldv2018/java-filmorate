@@ -27,8 +27,8 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    private List<Integer> genres;
-    private int MPA;
+    private List<Genre> genres;
+    private MPA mpa;
     private final Set<Integer> likes = new HashSet<>();
 
     public void addLike(int id) {

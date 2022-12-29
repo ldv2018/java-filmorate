@@ -30,7 +30,7 @@ public class GenreService {
                         "genre with id " + id + "not found"));
     }
 
-    public List<Integer> getByFilm(int id) {
+    public List<Genre> getByFilm(int id) {
         log.info("get genres by film --OK");
         return genreStorage.findByFilm(id);
     }
