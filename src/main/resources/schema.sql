@@ -84,6 +84,8 @@ ALTER TABLE friend ADD CONSTRAINT fk_friend_user_id FOREIGN KEY(user_id)
 ALTER TABLE friend ADD CONSTRAINT fk_friend_friend_id FOREIGN KEY(friend_id)
     REFERENCES "USER" (user_id);
 
+ALTER TABLE film_to_genre ADD CONSTRAINT uc_film_to_genre UNIQUE (film_id, genre_id);
+
 INSERT INTO rating (name)
 VALUES ('G'),
        ('PG'),

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import ru.yandex.practicum.filmorate.validators.ValidateDate;
 
 import javax.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@SuperBuilder
 public class Film {
 
     private int id;

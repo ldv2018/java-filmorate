@@ -31,9 +31,12 @@ public class DBGenreStorage implements GenreStorage{
 
     @Override
     public List<Genre> findByFilm(int filmId) {
-        String sqlQuery = "SELECT GENRE_ID FROM FILM_TO_GENRE WHERE FILM_ID = " +
-                filmId + ";";
-        return jdbcTemplate.queryForList(sqlQuery, Genre.class);
+        String sqlQuery = "SELECT FILM_TO_GENRE.GENRE_ID, " +
+                "GENRE.NAME " +
+                "FROM FILM_TO_GENRE " +
+                "JOIN GENRE ON FILM_TO_GENRE.GENRE_ID = GENRE.GENRE_ID " +
+                "WHERE FILM_ID = " + filmId + ";";
+        return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeGenre(resultSet));
     }
 
     private Genre makeGenre(ResultSet resultSet) throws SQLException {

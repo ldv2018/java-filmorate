@@ -50,9 +50,8 @@ public class FilmService {
         if (!filmStorage.isAlreadyExist(film.getId())) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + film.getId() + ". No film found");
         }
-        filmStorage.update(film);
         log.info("update film --OK");
-        return film;
+        return filmStorage.update(film);
     }
 
     public Film addLike(int filmId, int userId) {

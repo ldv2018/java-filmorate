@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Qualifier
 @Component
@@ -47,13 +48,6 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        List<Genre> genres = film.getGenres();
-        for (Genre g : genres) {
-            jdbcTemplate.update(
-                    "INSERT INTO FILM_TO_GENRE VALUES (?, ?)",
-                    film.getId(), g.getId()
-            );
-        }
 
         String sqlQuery = "INSERT INTO FILM (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) " +
                 "VALUES (?, ?, ?, ?, ?);";
@@ -69,12 +63,26 @@ public class DBFilmStorage implements FilmStorage {
         }, keyHolder);
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+
+        if (film.getGenres() != null) {
+            List<Genre> genres = film.getGenres();
+            for (Genre g : genres) {
+                jdbcTemplate.update(
+                        "INSERT INTO FILM_TO_GENRE VALUES (?, ?)",
+                        film.getId(), g.getId()
+                );
+            }
+        }
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        String sqlQuery = "UPDATE FILM SET NAME = ?, " +
+        String sQuery = "DELETE FROM FILM_TO_GENRE WHERE FILM_ID = ?;";
+        jdbcTemplate.update(sQuery, film.getId());
+
+        String sqlQuery = "UPDATE FILM SET " +
+                "NAME = ?, " +
                 "DESCRIPTION = ?, " +
                 "RELEASE_DATE = ?, " +
                 "DURATION = ?, " +
@@ -88,12 +96,33 @@ public class DBFilmStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId()
         );
-        return film;
+        if (film.getGenres() != null) {
+            if (!film.getGenres().isEmpty()) {
+                List<Genre> genres = film.getGenres()
+                        .stream()
+                        .distinct().collect(Collectors.toList());
+                for (Genre g : genres) {
+                        jdbcTemplate.update(
+                                "INSERT INTO FILM_TO_GENRE VALUES (?, ?)",
+                                film.getId(), g.getId()
+                        );
+                }
+            }
+        }
+        return find(film.getId()).orElseThrow();
     }
 
     @Override
     public Optional<Film> find(int id) {
-        String sqlQuery = "SELECT * FROM FILM WHERE FILM_ID = " + id + ";";
+        String sqlQuery = "SELECT FILM_ID, " +
+                "FILM.NAME, " +
+                "DESCRIPTION, " +
+                "RELEASE_DATE, " +
+                "DURATION, " +
+                "FILM.RATING_ID, " +
+                "RATING.NAME AS RATING_NAME " +
+                "FROM FILM " +
+                "JOIN RATING ON RATING.RATING_ID = FILM.RATING_ID WHERE FILM_ID = " + id + ";";
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet))
                 .stream()
                 .findAny();
