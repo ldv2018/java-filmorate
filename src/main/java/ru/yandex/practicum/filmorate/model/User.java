@@ -26,12 +26,4 @@ public class User {
     @Past
     private LocalDate birthday;
     private final Set<Integer> friends = new TreeSet<>();
-
-    public void addFriend(int id) {
-        friends.add(id);
-    }
-
-    public void deleteFriend(int id) {
-        friends.remove(id);
-    }
 }

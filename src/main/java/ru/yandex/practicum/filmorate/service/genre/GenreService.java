@@ -19,11 +19,13 @@ public class GenreService {
 
     public List<Genre> getAll() {
         log.info("get genres --OK");
+
         return genreStorage.findAll();
     }
 
     public Genre get(int id) {
         log.info("get genre by id --OK");
+
         return genreStorage
                 .find(id)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,
@@ -32,6 +34,7 @@ public class GenreService {
 
     public List<Genre> getByFilm(int id) {
         log.info("get genres by film --OK");
-        return genreStorage.findByFilm(id);
+
+        return genreStorage.findByFilmId(id);
     }
 }

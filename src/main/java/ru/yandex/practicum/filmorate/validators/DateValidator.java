@@ -16,6 +16,7 @@ public class DateValidator implements ConstraintValidator<ValidateDate, LocalDat
         if (value.isBefore(FILM_RELEASE)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Film release date is before required");
         }
+
         return true;
     }
 }

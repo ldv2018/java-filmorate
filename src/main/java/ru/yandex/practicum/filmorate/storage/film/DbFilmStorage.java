@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.service.genre.GenreService;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,14 +23,12 @@ import java.util.stream.Collectors;
 
 @Qualifier
 @Component
-public class DBFilmStorage implements FilmStorage {
+public class DbFilmStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final GenreService genreService;
 
-    public DBFilmStorage(JdbcTemplate jdbcTemplate, GenreService genreService) {
+    public DbFilmStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.genreService = genreService;
     }
 
     @Override
@@ -43,6 +42,7 @@ public class DBFilmStorage implements FilmStorage {
                 "RATING.NAME AS RATING_NAME " +
                 "FROM FILM " +
                 "JOIN RATING on FILM.RATING_ID = RATING.RATING_ID";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet));
     }
 
@@ -73,6 +73,7 @@ public class DBFilmStorage implements FilmStorage {
                 );
             }
         }
+
         return film;
     }
 
@@ -109,6 +110,7 @@ public class DBFilmStorage implements FilmStorage {
                 }
             }
         }
+
         return find(film.getId()).orElseThrow();
     }
 
@@ -123,38 +125,39 @@ public class DBFilmStorage implements FilmStorage {
                 "RATING.NAME AS RATING_NAME " +
                 "FROM FILM " +
                 "JOIN RATING ON RATING.RATING_ID = FILM.RATING_ID WHERE FILM_ID = " + id + ";";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet))
                 .stream()
                 .findAny();
     }
 
     @Override
-    public List<Integer> findId() {
-        String sqlQuery = "SELECT FILM_ID FROM FILM;";
-        return jdbcTemplate.queryForList(sqlQuery, Integer.class);
-    }
-
-    @Override
     public boolean isAlreadyExist(int id) {
-        return findId().contains(id);
+        String sqlQuery = "SELECT FILM_ID FROM FILM;";
+
+        return jdbcTemplate.queryForList(sqlQuery, Integer.class).contains(id);
     }
 
     @Override
-    public Optional<Film> addLike(int filmId, int userId) {
+    public Film addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO FILM_LIKE SET FILM_ID = ?, USER_ID = ?";
         jdbcTemplate.update(
                 sqlQuery,
                 filmId,
                 userId
         );
-        return find(filmId);
+
+        return find(filmId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + filmId + ". No film found"));
     }
 
     @Override
-    public Optional<Film> deleteLike(int filmId, int userId) {
+    public Film deleteLike(int filmId, int userId) {
         String sqlQuery = "DELETE FROM FILM_LIKE WHERE FILM_ID = ? AND USER_ID = ?;";
         jdbcTemplate.update(sqlQuery, filmId, userId);
-        return find(filmId);
+
+        return find(filmId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Bad id " + filmId + ". No film found"));
     }
 
     @Override
@@ -177,7 +180,6 @@ public class DBFilmStorage implements FilmStorage {
                 "LIMIT " + count + ";";
         
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeFilm(resultSet));
-
     }
 
     private Film makeFilm(ResultSet resultSet) throws SQLException {
@@ -186,15 +188,14 @@ public class DBFilmStorage implements FilmStorage {
         String description = resultSet.getString("description");
         LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
         int duration = resultSet.getInt("duration");
-        List<Genre> genres = genreService.getByFilm(id);
-        MPA mpa = new MPA(resultSet.getInt("rating_id"),
+        Mpa mpa = new Mpa(resultSet.getInt("rating_id"),
                 resultSet.getString("rating_name"));
+
         return new Film(id,
                 name,
                 description,
                 releaseDate,
                 duration,
-                genres,
                 mpa);
     }
 }

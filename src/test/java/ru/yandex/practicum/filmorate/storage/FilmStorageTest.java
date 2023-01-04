@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.storage.film.DBFilmStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.film.DbFilmStorage;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmStorageTest {
-    private final DBFilmStorage filmStorage;
+    private final DbFilmStorage filmStorage;
 
     @Test
     void findValidFilm() {
@@ -27,7 +27,7 @@ public class FilmStorageTest {
                 .description("description")
                 .duration(150)
                 .releaseDate(LocalDate.now())
-                .mpa(MPA.builder().id(1).build())
+                .mpa(Mpa.builder().id(1).build())
                 .build();
 
         int filmId = filmStorage.add(testFilm).getId();

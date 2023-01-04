@@ -18,16 +18,17 @@ import java.util.Optional;
 
 @Component
 @Qualifier
-public class DBUserStorage implements UserStorage {
+public class DbUserStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public DBUserStorage(JdbcTemplate jdbcTemplate) {
+    public DbUserStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public List<User> findAll() {
         String sqlQuery = "SELECT * FROM \"USER\"";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeUser(resultSet));
     }
 
@@ -44,8 +45,8 @@ public class DBUserStorage implements UserStorage {
             statement.setDate(4, Date.valueOf(user.getBirthday()));
             return statement;
         }, keyHolder);
-
         user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+
         return user;
     }
 
@@ -61,12 +62,14 @@ public class DBUserStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId()
         );
+
         return user;
     }
 
     @Override
     public Optional<User> find(int id) {
         String sqlQuery = "SELECT * FROM \"USER\" WHERE user_id = " + id + ";";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeUser(resultSet))
                 .stream()
                 .findAny();
@@ -75,6 +78,7 @@ public class DBUserStorage implements UserStorage {
     @Override
     public List<Integer> findId() {
         String sqlQuery = "SELECT user_id FROM \"USER\";";
+
         return jdbcTemplate.queryForList(sqlQuery, Integer.class);
     }
 
@@ -103,6 +107,7 @@ public class DBUserStorage implements UserStorage {
         String sqlQuery = "SELECT *" +
                 "FROM \"USER\" " +
                 "WHERE user_id IN (SELECT FRIEND_ID FROM FRIEND WHERE USER_ID = " + id +");";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeUser(resultSet));
     }
 
@@ -113,6 +118,7 @@ public class DBUserStorage implements UserStorage {
                 "SELECT FRIEND_ID FROM FRIEND WHERE USER_ID = " + id +
                 " INTERSECT " +
                 "SELECT FRIEND_ID FROM FRIEND WHERE USER_ID = " + otherId + ");";
+
         return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> makeUser(resultSet));
     }
 
@@ -122,6 +128,7 @@ public class DBUserStorage implements UserStorage {
         String login = resultSet.getString("login");
         String name = resultSet.getString("name");
         LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
+
         return new User(id, email, login, name, birthday);
     }
 }

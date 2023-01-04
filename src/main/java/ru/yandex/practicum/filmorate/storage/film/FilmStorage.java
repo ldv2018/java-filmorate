@@ -14,13 +14,11 @@ public interface FilmStorage {
 
     Optional<Film> find(int id);
 
-    List<Integer> findId();
-
     boolean isAlreadyExist(int id);
 
-    Optional<Film> addLike(int filmId, int userId);
+    Film addLike(int filmId, int userId);
 
-    Optional<Film> deleteLike(int filmId, int userId);
+    Film deleteLike(int filmId, int userId);
 
     List<Film> getPopularFilms(int count);
 }

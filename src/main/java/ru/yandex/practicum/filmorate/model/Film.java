@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,19 +30,11 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    private List<Genre> genres;
-    private MPA mpa;
+    private final List<Genre> genres = new ArrayList<>();
+    private Mpa mpa;
     private final Set<Integer> likes = new HashSet<>();
 
-    public void addLike(int id) {
-        likes.add(id);
-    }
-
-    public void deleteLike(int id) {
-        likes.remove(id);
-    }
-
-    public int getPopularityIndex() {
-        return likes.size();
-    }
+    public void addGenres(Genre genre) {
+        genres.add(genre);
+    };
 }

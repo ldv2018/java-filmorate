@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 
 import java.util.List;
@@ -33,6 +32,7 @@ public class GenreController {
         if (id <= 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Genre id must be positive");
         }
+
         return genreService.get(id);
     }
 }
