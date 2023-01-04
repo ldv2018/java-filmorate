@@ -28,6 +28,7 @@ public class UserController {
         if (user == null) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
         }
+
         return userService.add(user);
     }
 
@@ -43,6 +44,7 @@ public class UserController {
         if (user == null) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Bad request. User couldn't be null");
         }
+
         return userService.update(user);
     }
 
