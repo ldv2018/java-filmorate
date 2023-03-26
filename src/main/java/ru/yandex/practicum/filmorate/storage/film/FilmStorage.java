@@ -6,14 +6,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
-
     List<Film> findAll();
-
-    Optional<Film> find(int id);
 
     Film add(Film film);
 
     Film update(Film film);
 
+    Optional<Film> find(int id);
+
     boolean isAlreadyExist(int id);
+
+    Film addLike(int filmId, int userId);
+
+    Film deleteLike(int filmId, int userId);
+
+    List<Film> getPopularFilms(int count);
 }
